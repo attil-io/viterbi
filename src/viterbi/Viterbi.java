@@ -1,6 +1,5 @@
 package viterbi;
 
-import java.util.Stack;
 
 public class Viterbi {
 
@@ -70,15 +69,6 @@ public class Viterbi {
 		}
 		
 		// ------------------------------------------------------------
-		for (int i = 0; i < numStates; ++i) {
-			System.out.print("state #" + i + ": ");
-			for (int j = 0; j < observations.length; j++) {
-				System.out.print(stateProbsForObservations[i][j] + " ");
-			}
-			System.out.println();
-		}
-		
-		// ------------------------------------------------------------
 		int stateWithMaxProb = 0;
 		double maxProb = stateProbsForObservations[stateWithMaxProb][observations.length - 1];
 		for (int i = 1; i < numStates; ++i) {
@@ -89,18 +79,13 @@ public class Viterbi {
 			}
 		}
 		
-		Stack<Integer> stack = new Stack<>();
+		int [] result = new int[observations.length];
 		
 		for (int i = observations.length - 1; i >= 0; --i) {
-			stack.push(stateWithMaxProb);
+			result[i] = stateWithMaxProb;
 			stateWithMaxProb = prevStates[stateWithMaxProb][i];
 		}
 		
-		int [] result = new int[observations.length];
-		
-		for (int i = 0; i < observations.length; ++i) {
-			result[i] = stack.pop();
-		}
 		
 		return result;
 	}
