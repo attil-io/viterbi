@@ -105,6 +105,38 @@ public class ViterbiTest {
 		assertThat(states, is(expected));
 	}
 	
+	@Test
+	public void wrapperWithSampleFromPostagga() {
+		List<String> states = viterbiWrapper(set("P", "V", "N", "D"),
+				set("Je", "Te", "Ma", "Mange", "Tue", "Montre", "Pomme", "Mouche", "Une"),
+				ViterbiTest.<Key<String>, Double>map(
+						new Key<String>("P", "V"), 0.3333333,
+						new Key<String>("P", "P"), 0.3333333,
+						new Key<String>("P", "N"), 0.3333334,
+						new Key<String>("V", "D"), 0.5,
+						new Key<String>("V", "P"), 0.5,
+						new Key<String>("D", "N"), 1.0
+					),
+				ViterbiTest.<Key<String>, Double>map(
+						new Key<String>("P", "Je"), 0.3333333,
+						new Key<String>("P", "Te"), 0.3333333,
+						new Key<String>("P", "Ma"), 0.3333334,
+						new Key<String>("V", "Mange"), 0.3333333,
+						new Key<String>("V", "Tue"), 0.3333333,
+						new Key<String>("V", "Montre"), 0.3333334,
+						new Key<String>("N", "Pomme"), 0.3333333,
+						new Key<String>("N", "Mouche"), 0.3333333,
+						new Key<String>("N", "Montre"), 0.3333334,
+						new Key<String>("D", "Une"), 1.0
+					),
+				ViterbiTest.<String, Double>map(
+						"P", 1.0
+					),
+				list("Je", "Mange", "Une", "Pomme"));
+		final List<String> expected = list("P", "V", "D", "N");
+		assertThat(states, is(expected));
+	}
+	
 	
 	private static <T> Set<T> set(T ... elements) {
 		Set<T> ret = new HashSet<>();
