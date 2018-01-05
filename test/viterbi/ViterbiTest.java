@@ -1,5 +1,7 @@
 package viterbi;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static viterbi.Viterbi.viterbi;
 import static viterbi.Viterbi.viterbiWrapper;
 
@@ -10,11 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 import viterbi.Viterbi.Key;
-import static org.hamcrest.Matchers.*;
+import viterbi.Viterbi.ViterbiMachine;
+import viterbi.Viterbi.ViterbiModel;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 public class ViterbiTest {
 
@@ -136,7 +141,41 @@ public class ViterbiTest {
 		final List<String> expected = list("P", "V", "D", "N");
 		assertThat(states, is(expected));
 	}
-	
+
+	enum States {
+		HEALTHY, FEVER
+	};
+
+	enum Observations {
+		OK, COLD, DIZZY
+	};
+
+	@Test
+	public void viterbiMachineWithSampleFromWikipedia() {
+		ViterbiModel<States, Observations> model = ViterbiModel.<States, Observations>builder()
+				.withInitialDistributions(ImmutableMap.<States, Double>builder()
+						.put(States.HEALTHY, 0.6)
+						.put(States.FEVER, 0.4)
+						.build())
+				.withTransitionProbability(States.HEALTHY, States.HEALTHY, 0.7)
+				.withTransitionProbability(States.HEALTHY, States.FEVER, 0.3)
+				.withTransitionProbability(States.FEVER, States.HEALTHY, 0.4)
+				.withTransitionProbability(States.FEVER, States.FEVER, 0.6)
+				.withEmissionProbability(States.HEALTHY, Observations.OK, 0.5)
+				.withEmissionProbability(States.HEALTHY, Observations.COLD, 0.4)
+				.withEmissionProbability(States.HEALTHY, Observations.DIZZY, 0.1)
+				.withEmissionProbability(States.FEVER, Observations.OK, 0.1)
+				.withEmissionProbability(States.FEVER, Observations.COLD, 0.3)
+				.withEmissionProbability(States.FEVER, Observations.DIZZY, 0.6)
+				.build();
+		
+		ImmutableList<Observations> observations = ImmutableList.of(Observations.OK, Observations.COLD, Observations.DIZZY);
+		
+		ViterbiMachine<States, Observations> machine = new ViterbiMachine<>(model, observations);
+		List<States> states = machine.calculate();
+		final List<States> expected = ImmutableList.of(States.HEALTHY, States.HEALTHY, States.FEVER);
+		assertThat(states, is(expected));
+	}
 	
 	private static <T> Set<T> set(T ... elements) {
 		Set<T> ret = new HashSet<>();
