@@ -23,15 +23,24 @@ import com.google.common.collect.ImmutableMap;
 
 public class ViterbiTest {
 
+	enum SingleState { STATE0 };
+	enum SingleObservation { OBSERVATION0 };
+	
 	@Test
 	public void oneStateOneObservation() {
-		double [] initialDistrib = {1.0};
-		double [][] transitionProbs = {{1.0}};
-		double [][] emissionProbs = {{1.0}};
-		int [] observations = {0};
+		ViterbiModel<SingleState, SingleObservation> model = ViterbiModel.<SingleState, SingleObservation>builder()
+				.withInitialDistributions(ImmutableMap.<SingleState, Double>builder()
+						.put(SingleState.STATE0, 1.0)
+						.build())
+				.withTransitionProbability(SingleState.STATE0, SingleState.STATE0, 1.0)
+				.withEmissionProbability(SingleState.STATE0, SingleObservation.OBSERVATION0, 1.0)
+				.build();
 		
-		final int [] states = viterbi(1, 1, initialDistrib, transitionProbs, emissionProbs, observations);
-		final int [] expected = {0};
+		ImmutableList<SingleObservation> observations = ImmutableList.of(SingleObservation.OBSERVATION0);
+		
+		ViterbiMachine<SingleState, SingleObservation> machine = new ViterbiMachine<>(model, observations);
+		List<SingleState> states = machine.calculate();
+		final List<SingleState> expected = ImmutableList.of(SingleState.STATE0);
 		assertThat(states, is(expected));
 	}
 
