@@ -24,18 +24,6 @@ import com.google.common.collect.ImmutableMap;
 public class ViterbiTest {
 
 	@Test
-	public void sampleCaseShouldYieldGoodResults() {
-		double [] initialDistrib = {0.6, 0.4};
-		double [][] transitionProbs = {{0.7, 0.3}, {0.4, 0.6}};
-		double [][] emissionProbs = {{0.5, 0.4, 0.1}, {0.1, 0.3, 0.6}};
-		int [] observations = {0, 1, 2};
-		
-		final int [] states = viterbi(2, 3, initialDistrib, transitionProbs, emissionProbs, observations);
-		final int [] expected = {0, 0, 1};
-		assertThat(states, is(expected));
-	}
-
-	@Test
 	public void oneStateOneObservation() {
 		double [] initialDistrib = {1.0};
 		double [][] transitionProbs = {{1.0}};
@@ -83,33 +71,7 @@ public class ViterbiTest {
 		assertThat(states, is(expected));
 	}
 	
-	@Test
-	public void wrapperWithSampleFromWikipedia() {
-		List<String> states = viterbiWrapper(set("Healthy", "Fever"),
-				set("Normal", "Cold", "Dizzy"),
-				ViterbiTest.<Key<String>, Double>map(
-						new Key<String>("Healthy", "Healthy"), 0.7,
-						new Key<String>("Healthy", "Fever"), 0.3,
-						new Key<String>("Fever", "Healthy"), 0.4,
-						new Key<String>("Fever", "Fever"), 0.6
-					),
-				ViterbiTest.<Key<String>, Double>map(
-						new Key<String>("Healthy", "Normal"), 0.5,
-						new Key<String>("Healthy", "Cold"), 0.4,
-						new Key<String>("Healthy", "Dizzy"), 0.1,
-						new Key<String>("Fever", "Normal"), 0.1,
-						new Key<String>("Fever", "Cold"), 0.3,
-						new Key<String>("Fever", "Dizzy"), 0.6
-					),
-				ViterbiTest.<String, Double>map(
-						"Healthy", 0.6,
-						"Fever", 0.4
-					),
-				list("Normal", "Cold", "Dizzy"));
-		final List<String> expected = list("Healthy", "Healthy", "Fever");
-		assertThat(states, is(expected));
-	}
-	
+
 	@Test
 	public void wrapperWithSampleFromPostagga() {
 		List<String> states = viterbiWrapper(set("P", "V", "N", "D"),
@@ -151,7 +113,7 @@ public class ViterbiTest {
 	};
 
 	@Test
-	public void viterbiMachineWithSampleFromWikipedia() {
+	public void wikipediaSample() {
 		ViterbiModel<States, Observations> model = ViterbiModel.<States, Observations>builder()
 				.withInitialDistributions(ImmutableMap.<States, Double>builder()
 						.put(States.HEALTHY, 0.6)
