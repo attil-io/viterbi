@@ -2,19 +2,11 @@ package viterbi;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static viterbi.Viterbi.viterbi;
-import static viterbi.Viterbi.viterbiWrapper;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.junit.Test;
 
-import viterbi.Viterbi.Key;
 import viterbi.Viterbi.ViterbiMachine;
 import viterbi.Viterbi.ViterbiModel;
 
@@ -22,104 +14,144 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class ViterbiTest {
-
-	enum SingleState { STATE0 };
-	enum SingleObservation { OBSERVATION0 };
+	enum OneStateOneObservationState { STATE0 };
+	enum OneStateOneObservationObservation { OBSERVATION0 };
 	
 	@Test
 	public void oneStateOneObservation() {
-		ViterbiModel<SingleState, SingleObservation> model = ViterbiModel.<SingleState, SingleObservation>builder()
-				.withInitialDistributions(ImmutableMap.<SingleState, Double>builder()
-						.put(SingleState.STATE0, 1.0)
+		ViterbiModel<OneStateOneObservationState, OneStateOneObservationObservation> model = ViterbiModel.<OneStateOneObservationState, OneStateOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateOneObservationState, Double>builder()
+						.put(OneStateOneObservationState.STATE0, 1.0)
 						.build())
-				.withTransitionProbability(SingleState.STATE0, SingleState.STATE0, 1.0)
-				.withEmissionProbability(SingleState.STATE0, SingleObservation.OBSERVATION0, 1.0)
+				.withTransitionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationState.STATE0, 1.0)
+				.withEmissionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationObservation.OBSERVATION0, 1.0)
 				.build();
 		
-		ImmutableList<SingleObservation> observations = ImmutableList.of(SingleObservation.OBSERVATION0);
+		ImmutableList<OneStateOneObservationObservation> observations = ImmutableList.of(OneStateOneObservationObservation.OBSERVATION0);
 		
-		ViterbiMachine<SingleState, SingleObservation> machine = new ViterbiMachine<>(model, observations);
-		List<SingleState> states = machine.calculate();
-		final List<SingleState> expected = ImmutableList.of(SingleState.STATE0);
+		ViterbiMachine<OneStateOneObservationState, OneStateOneObservationObservation> machine = new ViterbiMachine<>(model, observations);
+		List<OneStateOneObservationState> states = machine.calculate();
+		final List<OneStateOneObservationState> expected = ImmutableList.of(OneStateOneObservationState.STATE0);
 		assertThat(states, is(expected));
 	}
 
+	enum OneStateTwoObservationsState { STATE0 };
+	enum OneStateTwoObservationsObservation { OBSERVATION0, OBSERVATION1 };
+	
 	@Test
 	public void oneStateTwoObservations() {
-		double [] initialDistrib = {1.0};
-		double [][] transitionProbs = {{1.0}};
-		double [][] emissionProbs = {{0.4, 0.5}};
-		int [] observations = {1, 1};
+		ViterbiModel<OneStateTwoObservationsState, OneStateTwoObservationsObservation> model = ViterbiModel.<OneStateTwoObservationsState, OneStateTwoObservationsObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateTwoObservationsState, Double>builder()
+						.put(OneStateTwoObservationsState.STATE0, 1.0)
+						.build())
+				.withTransitionProbability(OneStateTwoObservationsState.STATE0, OneStateTwoObservationsState.STATE0, 1.0)
+				.withEmissionProbability(OneStateTwoObservationsState.STATE0, OneStateTwoObservationsObservation.OBSERVATION0, 0.4)
+				.withEmissionProbability(OneStateTwoObservationsState.STATE0, OneStateTwoObservationsObservation.OBSERVATION1, 0.6)
+				.build();
 		
-		final int [] states = viterbi(1, 2, initialDistrib, transitionProbs, emissionProbs, observations);
-		final int [] expected = {0, 0};
+		ImmutableList<OneStateTwoObservationsObservation> observations = ImmutableList.of(OneStateTwoObservationsObservation.OBSERVATION1, OneStateTwoObservationsObservation.OBSERVATION1);
+		
+		ViterbiMachine<OneStateTwoObservationsState, OneStateTwoObservationsObservation> machine = new ViterbiMachine<>(model, observations);
+		List<OneStateTwoObservationsState> states = machine.calculate();
+		final List<OneStateTwoObservationsState> expected = ImmutableList.of(OneStateTwoObservationsState.STATE0, OneStateTwoObservationsState.STATE0);
 		assertThat(states, is(expected));
 	}
+
+	enum TwoStatesOneObservationState { STATE0, STATE1 };
+	enum TwoStatesOneObservationObservation { OBSERVATION0 };
 
 	@Test
 	public void twoStatesOneObservation() {
-		double [] initialDistrib = {0.6, 0.4};
-		double [][] transitionProbs = {{0.7, 0.3}, {0.4, 0.6}};
-		double [][] emissionProbs = {{1.0}, {1.0}};
-		int [] observations = {0, 0};
+		ViterbiModel<TwoStatesOneObservationState, TwoStatesOneObservationObservation> model = ViterbiModel.<TwoStatesOneObservationState, TwoStatesOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<TwoStatesOneObservationState, Double>builder()
+						.put(TwoStatesOneObservationState.STATE0, 0.6)
+						.put(TwoStatesOneObservationState.STATE1, 0.4)
+						.build())
+				.withTransitionProbability(TwoStatesOneObservationState.STATE0, TwoStatesOneObservationState.STATE0, 0.7)
+				.withTransitionProbability(TwoStatesOneObservationState.STATE0, TwoStatesOneObservationState.STATE1, 0.3)
+				.withTransitionProbability(TwoStatesOneObservationState.STATE1, TwoStatesOneObservationState.STATE0, 0.4)
+				.withTransitionProbability(TwoStatesOneObservationState.STATE1, TwoStatesOneObservationState.STATE1, 0.6)
+				.withEmissionProbability(TwoStatesOneObservationState.STATE0, TwoStatesOneObservationObservation.OBSERVATION0, 1.0)
+				.withEmissionProbability(TwoStatesOneObservationState.STATE1, TwoStatesOneObservationObservation.OBSERVATION0, 1.0)
+				.build();
 		
-		final int [] states = viterbi(2, 1, initialDistrib, transitionProbs, emissionProbs, observations);
-		final int [] expected = {0, 0};
+		ImmutableList<TwoStatesOneObservationObservation> observations = ImmutableList.of(TwoStatesOneObservationObservation.OBSERVATION0, TwoStatesOneObservationObservation.OBSERVATION0);
+		
+		ViterbiMachine<TwoStatesOneObservationState, TwoStatesOneObservationObservation> machine = new ViterbiMachine<>(model, observations);
+		List<TwoStatesOneObservationState> states = machine.calculate();
+		final List<TwoStatesOneObservationState> expected = ImmutableList.of(TwoStatesOneObservationState.STATE0, TwoStatesOneObservationState.STATE0);
 		assertThat(states, is(expected));
 	}
 
+	enum TwoStatesTwoObservationsState { STATE0, STATE1 };
+	enum TwoStatesTwoObservationsObservation { OBSERVATION0, OBSERVATION1 };
+
 	@Test
 	public void twoStatesTwoObservations() {
-		double [] initialDistrib = {0.6, 0.4};
-		double [][] transitionProbs = {{0.7, 0.3}, {0.4, 0.6}};
-		double [][] emissionProbs = {{0.6, 0.4}, {0.6, 0.4}};
-		int [] observations = {0, 0};
+		ViterbiModel<TwoStatesTwoObservationsState, TwoStatesTwoObservationsObservation> model = ViterbiModel.<TwoStatesTwoObservationsState, TwoStatesTwoObservationsObservation>builder()
+				.withInitialDistributions(ImmutableMap.<TwoStatesTwoObservationsState, Double>builder()
+						.put(TwoStatesTwoObservationsState.STATE0, 0.6)
+						.put(TwoStatesTwoObservationsState.STATE1, 0.4)
+						.build())
+				.withTransitionProbability(TwoStatesTwoObservationsState.STATE0, TwoStatesTwoObservationsState.STATE0, 0.7)
+				.withTransitionProbability(TwoStatesTwoObservationsState.STATE0, TwoStatesTwoObservationsState.STATE1, 0.3)
+				.withTransitionProbability(TwoStatesTwoObservationsState.STATE1, TwoStatesTwoObservationsState.STATE0, 0.4)
+				.withTransitionProbability(TwoStatesTwoObservationsState.STATE1, TwoStatesTwoObservationsState.STATE1, 0.6)
+				.withEmissionProbability(TwoStatesTwoObservationsState.STATE0, TwoStatesTwoObservationsObservation.OBSERVATION0, 0.6)
+				.withEmissionProbability(TwoStatesTwoObservationsState.STATE0, TwoStatesTwoObservationsObservation.OBSERVATION1, 0.4)
+				.withEmissionProbability(TwoStatesTwoObservationsState.STATE1, TwoStatesTwoObservationsObservation.OBSERVATION0, 0.6)
+				.withEmissionProbability(TwoStatesTwoObservationsState.STATE1, TwoStatesTwoObservationsObservation.OBSERVATION1, 0.4)
+				.build();
 		
-		final int [] states = viterbi(2, 2, initialDistrib, transitionProbs, emissionProbs, observations);
-		final int [] expected = {0, 0};
+		ImmutableList<TwoStatesTwoObservationsObservation> observations = ImmutableList.of(TwoStatesTwoObservationsObservation.OBSERVATION0, TwoStatesTwoObservationsObservation.OBSERVATION0);
+		
+		ViterbiMachine<TwoStatesTwoObservationsState, TwoStatesTwoObservationsObservation> machine = new ViterbiMachine<>(model, observations);
+		List<TwoStatesTwoObservationsState> states = machine.calculate();
+		final List<TwoStatesTwoObservationsState> expected = ImmutableList.of(TwoStatesTwoObservationsState.STATE0, TwoStatesTwoObservationsState.STATE0);
 		assertThat(states, is(expected));
 	}
 	
 
+	enum PostaggaState { P, V, N, D };
+	enum PostaggaObservation { Je, Te, Ma, Mange, Tue, Montre, Pomme, Mouche, Une };
+
 	@Test
-	public void wrapperWithSampleFromPostagga() {
-		List<String> states = viterbiWrapper(set("P", "V", "N", "D"),
-				set("Je", "Te", "Ma", "Mange", "Tue", "Montre", "Pomme", "Mouche", "Une"),
-				ViterbiTest.<Key<String>, Double>map(
-						new Key<String>("P", "V"), 0.3333333,
-						new Key<String>("P", "P"), 0.3333333,
-						new Key<String>("P", "N"), 0.3333334,
-						new Key<String>("V", "D"), 0.5,
-						new Key<String>("V", "P"), 0.5,
-						new Key<String>("D", "N"), 1.0
-					),
-				ViterbiTest.<Key<String>, Double>map(
-						new Key<String>("P", "Je"), 0.3333333,
-						new Key<String>("P", "Te"), 0.3333333,
-						new Key<String>("P", "Ma"), 0.3333334,
-						new Key<String>("V", "Mange"), 0.3333333,
-						new Key<String>("V", "Tue"), 0.3333333,
-						new Key<String>("V", "Montre"), 0.3333334,
-						new Key<String>("N", "Pomme"), 0.3333333,
-						new Key<String>("N", "Mouche"), 0.3333333,
-						new Key<String>("N", "Montre"), 0.3333334,
-						new Key<String>("D", "Une"), 1.0
-					),
-				ViterbiTest.<String, Double>map(
-						"P", 1.0
-					),
-				list("Je", "Mange", "Une", "Pomme"));
-		final List<String> expected = list("P", "V", "D", "N");
+	public void postaggaSample() {
+		ViterbiModel<PostaggaState, PostaggaObservation> model = ViterbiModel.<PostaggaState, PostaggaObservation>builder()
+				.withInitialDistributions(ImmutableMap.<PostaggaState, Double>builder()
+						.put(PostaggaState.P, 1.0)
+						.put(PostaggaState.V, 0.0)
+						.put(PostaggaState.N, 0.0)
+						.put(PostaggaState.D, 0.0)
+						.build())
+				.withTransitionProbability(PostaggaState.P, PostaggaState.V, 0.3333333)
+				.withTransitionProbability(PostaggaState.P, PostaggaState.P, 0.3333333)
+				.withTransitionProbability(PostaggaState.P, PostaggaState.N, 0.3333334)
+				.withTransitionProbability(PostaggaState.V, PostaggaState.D, 0.5)
+				.withTransitionProbability(PostaggaState.V, PostaggaState.P, 0.5)
+				.withTransitionProbability(PostaggaState.D, PostaggaState.N, 1.0)
+				.withEmissionProbability(PostaggaState.P, PostaggaObservation.Je, 0.3333333)
+				.withEmissionProbability(PostaggaState.P, PostaggaObservation.Te, 0.3333333)
+				.withEmissionProbability(PostaggaState.P, PostaggaObservation.Ma, 0.3333334)
+				.withEmissionProbability(PostaggaState.V, PostaggaObservation.Mange, 0.3333333)
+				.withEmissionProbability(PostaggaState.V, PostaggaObservation.Tue, 0.3333333)
+				.withEmissionProbability(PostaggaState.V, PostaggaObservation.Montre, 0.3333334)
+				.withEmissionProbability(PostaggaState.N, PostaggaObservation.Pomme, 0.3333333)
+				.withEmissionProbability(PostaggaState.N, PostaggaObservation.Mouche, 0.3333333)
+				.withEmissionProbability(PostaggaState.N, PostaggaObservation.Montre, 0.3333334)
+				.withEmissionProbability(PostaggaState.D, PostaggaObservation.Une, 1.0)
+				.build();
+		
+		ImmutableList<PostaggaObservation> observations = ImmutableList.of(PostaggaObservation.Je, PostaggaObservation.Mange, PostaggaObservation.Une, PostaggaObservation.Pomme);
+		
+		ViterbiMachine<PostaggaState, PostaggaObservation> machine = new ViterbiMachine<>(model, observations);
+		List<PostaggaState> states = machine.calculate();
+		final List<PostaggaState> expected = ImmutableList.of(PostaggaState.P, PostaggaState.V, PostaggaState.D, PostaggaState.N);
 		assertThat(states, is(expected));
 	}
 
-	enum States {
-		HEALTHY, FEVER
-	};
-
-	enum Observations {
-		OK, COLD, DIZZY
-	};
+	enum States { HEALTHY, FEVER };
+	enum Observations { OK, COLD, DIZZY };
 
 	@Test
 	public void wikipediaSample() {
@@ -147,28 +179,4 @@ public class ViterbiTest {
 		final List<States> expected = ImmutableList.of(States.HEALTHY, States.HEALTHY, States.FEVER);
 		assertThat(states, is(expected));
 	}
-	
-	private static <T> Set<T> set(T ... elements) {
-		Set<T> ret = new HashSet<>();
-		for (T e: elements) {
-			ret.add(e);
-		}
-		return ret;
-	}
-	
-	private static <K, V> Map<K, V> map(Object ... keysAndValues) {
-		if (keysAndValues.length % 2 != 0) {
-			throw new IllegalArgumentException("keysAndValues.length = " + keysAndValues.length);
-		}
-		Map<K, V> result = new HashMap<K, V>();
-		for (int i = 0; i < keysAndValues.length - 1; i += 2) {
-			result.put((K) keysAndValues[i], (V) keysAndValues[i + 1]);
-		}
-		return result;
-	}
-	
-	private static <T> List<T> list(T ... elements) {
-		return Arrays.asList(elements);
-	}
-
 }

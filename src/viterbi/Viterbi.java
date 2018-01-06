@@ -298,7 +298,7 @@ public class Viterbi {
 					sumRowProbs += prob;
 				}
 				if (!doublesEqual(sumRowProbs, 1.0)) {
-					throw new IllegalArgumentException("'" + row + "' sumRowProbs = " + sumInitProbs);
+					throw new IllegalArgumentException("'" + row + "' sumRowProbs = " + sumRowProbs);
 				}
 			}
 			if (model.emissionProbabilities.size() < 1) {
@@ -310,15 +310,23 @@ public class Viterbi {
 					sumRowProbs += prob;
 				}
 				if (!doublesEqual(sumRowProbs, 1.0)) {
-					throw new IllegalArgumentException("'" + row + "' sumRowProbs = " + sumInitProbs);
+					throw new IllegalArgumentException("'" + row + "' sumRowProbs = " + sumRowProbs);
 				}
 			}
+		}
+		
+		private static <S, T, V> V getOrDefault(Table<S, T, V> table, S key1, T key2, V defaultValue) {
+			V ret = table.get(key1, key2);
+			if (ret == null) {
+				ret = defaultValue;
+			}
+			return ret;
 		}
 		
 		private void initialize() {
 			final T firstObservation = observations.get(0);
 			for (S state : possibleStates) {
-				stateProbsForObservations.put(state, 0, model.initialDistributions.get(state) * model.emissionProbabilities.get(state, firstObservation));
+				stateProbsForObservations.put(state, 0, model.initialDistributions.getOrDefault(state, 0.0) * getOrDefault(model.emissionProbabilities, state, firstObservation, 0.0));
 				previousStatesForObservations.put(state, 0, Optional.<S>empty());
 			}
 			
@@ -334,13 +342,13 @@ public class Viterbi {
 				double maxProb = 0.0;
 				Optional<S> prevStateWithMaxProb = Optional.empty();
 				for (S state2 : possibleStates) {
-					double prob = stateProbsForObservations.get(state2, step - 1) * model.transitionProbabilities.get(state2, state);
+					double prob = getOrDefault(stateProbsForObservations, state2, step - 1, 0.0) * getOrDefault(model.transitionProbabilities, state2, state, 0.0);
 					if (prob > maxProb) {
 						maxProb = prob;
 						prevStateWithMaxProb = Optional.of(state2);
 					}
 				}
-				stateProbsForObservations.put(state, step, maxProb * model.emissionProbabilities.get(state, observations.get(step)));
+				stateProbsForObservations.put(state, step, maxProb * getOrDefault(model.emissionProbabilities, state, observations.get(step), 0.0));
 				previousStatesForObservations.put(state, step, prevStateWithMaxProb);
 			}
 			
