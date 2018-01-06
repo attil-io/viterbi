@@ -5,7 +5,9 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import viterbi.Viterbi.ViterbiMachine;
 import viterbi.Viterbi.ViterbiModel;
@@ -14,6 +16,62 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class ViterbiTest {
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();	
+
+	enum ZeroStatesZeroObservationsState { };
+	enum ZeroStatesZeroObservationsObservation { };
+	
+	@Test
+	public void zeroStatesZeroObservationsIsNotOk() {
+		ViterbiModel<ZeroStatesZeroObservationsState, ZeroStatesZeroObservationsObservation> model = ViterbiModel.<ZeroStatesZeroObservationsState, ZeroStatesZeroObservationsObservation>builder()
+				.withInitialDistributions(ImmutableMap.<ZeroStatesZeroObservationsState, Double>builder()
+						.build())
+				.build();
+		
+		ImmutableList<ZeroStatesZeroObservationsObservation> observations = ImmutableList.of();
+
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("enum for states should contain at least one state");
+		new ViterbiMachine<>(model, observations);
+	}
+	
+	enum ZeroStatesOneObservationState { };
+	enum ZeroStatesOneObservationObservation { OBSERVATION0 };
+	
+	@Test
+	public void zeroStatesOneObservationIsNotOk() {
+		ViterbiModel<ZeroStatesOneObservationState, ZeroStatesOneObservationObservation> model = ViterbiModel.<ZeroStatesOneObservationState, ZeroStatesOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<ZeroStatesOneObservationState, Double>builder()
+						.build())
+				.build();
+		
+		ImmutableList<ZeroStatesOneObservationObservation> observations = ImmutableList.of();
+
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("enum for states should contain at least one state");
+		new ViterbiMachine<>(model, observations);
+	}
+
+	enum OneStateZeroObservationsState { STATE0 };
+	enum OneStateZeroObservationsObservation { };
+	
+	@Test
+	public void oneStateZeroObservationsIsNotOk() {
+		ViterbiModel<OneStateZeroObservationsState, OneStateZeroObservationsObservation> model = ViterbiModel.<OneStateZeroObservationsState, OneStateZeroObservationsObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateZeroObservationsState, Double>builder()
+						.put(OneStateZeroObservationsState.STATE0, 1.0)
+						.build())
+				.build();
+		
+		ImmutableList<OneStateZeroObservationsObservation> observations = ImmutableList.of();
+
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("enum for observations should contain at least one observation");
+		new ViterbiMachine<>(model, observations);
+	}
+
 	enum OneStateOneObservationState { STATE0 };
 	enum OneStateOneObservationObservation { OBSERVATION0 };
 	

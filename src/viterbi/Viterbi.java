@@ -77,8 +77,17 @@ public class Viterbi {
 			this.model = checkNotNull(model);
 			this.observations = checkNotNull(observations);
 			
-			possibleStates = ImmutableList.copyOf(getPossibleStates());
-			possibleObservations = ImmutableList.copyOf(getPossibleObservations());
+			try {
+				possibleStates = ImmutableList.copyOf(getPossibleStates());
+			} catch (IllegalStateException ise) {
+				throw new IllegalArgumentException("enum for states should contain at least one state", ise);
+			}
+			
+			try {
+				possibleObservations = ImmutableList.copyOf(getPossibleObservations());
+			} catch (IllegalStateException ise) {
+				throw new IllegalArgumentException("enum for observations should contain at least one observation", ise);
+			}
 			
 			validate();
 			initialize();
