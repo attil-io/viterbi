@@ -220,33 +220,33 @@ public class ViterbiTest {
 	}
 	
 
-	enum States { HEALTHY, FEVER };
-	enum Observations { OK, COLD, DIZZY };
+	enum WikipediaState { HEALTHY, FEVER };
+	enum WikipediaObservation { OK, COLD, DIZZY };
 
 	@Test
 	public void wikipediaSample() {
-		ViterbiModel<States, Observations> model = ViterbiModel.<States, Observations>builder()
-				.withInitialDistributions(ImmutableMap.<States, Double>builder()
-						.put(States.HEALTHY, 0.6)
-						.put(States.FEVER, 0.4)
+		ViterbiModel<WikipediaState, WikipediaObservation> model = ViterbiModel.<WikipediaState, WikipediaObservation>builder()
+				.withInitialDistributions(ImmutableMap.<WikipediaState, Double>builder()
+						.put(WikipediaState.HEALTHY, 0.6)
+						.put(WikipediaState.FEVER, 0.4)
 						.build())
-				.withTransitionProbability(States.HEALTHY, States.HEALTHY, 0.7)
-				.withTransitionProbability(States.HEALTHY, States.FEVER, 0.3)
-				.withTransitionProbability(States.FEVER, States.HEALTHY, 0.4)
-				.withTransitionProbability(States.FEVER, States.FEVER, 0.6)
-				.withEmissionProbability(States.HEALTHY, Observations.OK, 0.5)
-				.withEmissionProbability(States.HEALTHY, Observations.COLD, 0.4)
-				.withEmissionProbability(States.HEALTHY, Observations.DIZZY, 0.1)
-				.withEmissionProbability(States.FEVER, Observations.OK, 0.1)
-				.withEmissionProbability(States.FEVER, Observations.COLD, 0.3)
-				.withEmissionProbability(States.FEVER, Observations.DIZZY, 0.6)
+				.withTransitionProbability(WikipediaState.HEALTHY, WikipediaState.HEALTHY, 0.7)
+				.withTransitionProbability(WikipediaState.HEALTHY, WikipediaState.FEVER, 0.3)
+				.withTransitionProbability(WikipediaState.FEVER, WikipediaState.HEALTHY, 0.4)
+				.withTransitionProbability(WikipediaState.FEVER, WikipediaState.FEVER, 0.6)
+				.withEmissionProbability(WikipediaState.HEALTHY, WikipediaObservation.OK, 0.5)
+				.withEmissionProbability(WikipediaState.HEALTHY, WikipediaObservation.COLD, 0.4)
+				.withEmissionProbability(WikipediaState.HEALTHY, WikipediaObservation.DIZZY, 0.1)
+				.withEmissionProbability(WikipediaState.FEVER, WikipediaObservation.OK, 0.1)
+				.withEmissionProbability(WikipediaState.FEVER, WikipediaObservation.COLD, 0.3)
+				.withEmissionProbability(WikipediaState.FEVER, WikipediaObservation.DIZZY, 0.6)
 				.build();
 		
-		ImmutableList<Observations> observations = ImmutableList.of(Observations.OK, Observations.COLD, Observations.DIZZY);
+		ImmutableList<WikipediaObservation> observations = ImmutableList.of(WikipediaObservation.OK, WikipediaObservation.COLD, WikipediaObservation.DIZZY);
 		
-		ViterbiMachine<States, Observations> machine = new ViterbiMachine<>(model, observations);
-		List<States> states = machine.calculate();
-		final List<States> expected = ImmutableList.of(States.HEALTHY, States.HEALTHY, States.FEVER);
+		ViterbiMachine<WikipediaState, WikipediaObservation> machine = new ViterbiMachine<>(model, observations);
+		List<WikipediaState> states = machine.calculate();
+		final List<WikipediaState> expected = ImmutableList.of(WikipediaState.HEALTHY, WikipediaState.HEALTHY, WikipediaState.FEVER);
 		assertThat(states, is(expected));
 	}
 	
