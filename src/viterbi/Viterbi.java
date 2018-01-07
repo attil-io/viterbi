@@ -105,7 +105,9 @@ public class Viterbi {
 				throw new IllegalArgumentException("the sum of initial distributions should be 1.0, was " + sumInitProbs);
 			}
 			if (observations.size() < 1) {
-				throw new IllegalArgumentException("observations.size() = " + observations.size());
+				// should not happen (observations size already checked when retrieving possible enum values),
+				// only added for the sake of completeness
+				throw new IllegalArgumentException("at least one observation should be provided, " + observations.size() + " given");
 			}
 			if (model.transitionProbabilities.size() < 1) {
 				throw new IllegalArgumentException("model.transitionProbabilities.size() = " + model.transitionProbabilities.size());
