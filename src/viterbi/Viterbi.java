@@ -80,13 +80,13 @@ public class Viterbi {
 			try {
 				possibleStates = ImmutableList.copyOf(getPossibleStates());
 			} catch (IllegalStateException ise) {
-				throw new IllegalArgumentException("enum for states should contain at least one state", ise);
+				throw new IllegalArgumentException("empty states enum, or no explicit initial distribution provided", ise);
 			}
 			
 			try {
 				possibleObservations = ImmutableList.copyOf(getPossibleObservations());
 			} catch (IllegalStateException ise) {
-				throw new IllegalArgumentException("enum for observations should contain at least one observation", ise);
+				throw new IllegalArgumentException("empty observations enum, or no explicit observations provided", ise);
 			}
 			
 			validate();
@@ -102,7 +102,7 @@ public class Viterbi {
 				sumInitProbs += prob;
 			}
 			if (!doublesEqual(sumInitProbs, 1.0)) {
-				throw new IllegalArgumentException("sumInitProbs = " + sumInitProbs);
+				throw new IllegalArgumentException("the sum of initial distributions should be 1.0, was " + sumInitProbs);
 			}
 			if (observations.size() < 1) {
 				throw new IllegalArgumentException("observations.size() = " + observations.size());

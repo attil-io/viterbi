@@ -33,7 +33,7 @@ public class ViterbiTest {
 		ImmutableList<ZeroStatesZeroObservationsObservation> observations = ImmutableList.of();
 
 		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("enum for states should contain at least one state");
+		thrown.expectMessage("empty states enum, or no explicit initial distribution provided");
 		new ViterbiMachine<>(model, observations);
 	}
 	
@@ -50,7 +50,7 @@ public class ViterbiTest {
 		ImmutableList<ZeroStatesOneObservationObservation> observations = ImmutableList.of();
 
 		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("enum for states should contain at least one state");
+		thrown.expectMessage("empty states enum, or no explicit initial distribution provided");
 		new ViterbiMachine<>(model, observations);
 	}
 
@@ -68,7 +68,7 @@ public class ViterbiTest {
 		ImmutableList<OneStateZeroObservationsObservation> observations = ImmutableList.of();
 
 		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("enum for observations should contain at least one observation");
+		thrown.expectMessage("empty observations enum, or no explicit observations provided");
 		new ViterbiMachine<>(model, observations);
 	}
 
@@ -93,6 +93,56 @@ public class ViterbiTest {
 		assertThat(states, is(expected));
 	}
 
+	@Test
+	public void oneStateOneObservationMissingInitialDistributionIsNotOk() {
+		ViterbiModel<OneStateOneObservationState, OneStateOneObservationObservation> model = ViterbiModel.<OneStateOneObservationState, OneStateOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateOneObservationState, Double>builder()
+						.build())
+				.withTransitionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationState.STATE0, 1.0)
+				.withEmissionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationObservation.OBSERVATION0, 1.0)
+				.build();
+		
+		ImmutableList<OneStateOneObservationObservation> observations = ImmutableList.of(OneStateOneObservationObservation.OBSERVATION0);
+		
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("empty states enum, or no explicit initial distribution provided");
+		new ViterbiMachine<>(model, observations);
+	}
+	
+	@Test
+	public void oneStateOneObservationMissingObservationsIsNotOk() {
+		ViterbiModel<OneStateOneObservationState, OneStateOneObservationObservation> model = ViterbiModel.<OneStateOneObservationState, OneStateOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateOneObservationState, Double>builder()
+						.put(OneStateOneObservationState.STATE0, 1.0)
+						.build())
+				.withTransitionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationState.STATE0, 1.0)
+				.withEmissionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationObservation.OBSERVATION0, 1.0)
+				.build();
+		
+		ImmutableList<OneStateOneObservationObservation> observations = ImmutableList.of();
+		
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("empty observations enum, or no explicit observations provided");
+		new ViterbiMachine<>(model, observations);
+	}
+	
+	@Test
+	public void oneStateOneObservationSumInitialDistribNotOneIsNotOk() {
+		ViterbiModel<OneStateOneObservationState, OneStateOneObservationObservation> model = ViterbiModel.<OneStateOneObservationState, OneStateOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateOneObservationState, Double>builder()
+						.put(OneStateOneObservationState.STATE0, 1.1)
+						.build())
+				.withTransitionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationState.STATE0, 1.0)
+				.withEmissionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationObservation.OBSERVATION0, 1.0)
+				.build();
+		
+		ImmutableList<OneStateOneObservationObservation> observations = ImmutableList.of(OneStateOneObservationObservation.OBSERVATION0);
+		
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("the sum of initial distributions should be 1.0, was 1.1");
+		new ViterbiMachine<>(model, observations);
+	}
+	
 	enum OneStateTwoObservationsState { STATE0 };
 	enum OneStateTwoObservationsObservation { OBSERVATION0, OBSERVATION1 };
 	
