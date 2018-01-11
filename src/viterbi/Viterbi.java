@@ -125,9 +125,9 @@ public class Viterbi {
 			if (model.emissionProbabilities.size() < 1) {
 				throw new IllegalArgumentException("at least one emission probability should be provided, 0 given " + model.emissionProbabilities.size() + " given");
 			}
-			for (S row : model.emissionProbabilities.rowKeySet()) {
+			for (S row : possibleStates) {
 				double sumRowProbs = 0.0;
-				for (double prob : model.emissionProbabilities.row(row).values()) {
+				for (double prob : rowOrDefault(model.emissionProbabilities, row, ImmutableMap.<T, Double>of()).values()) {
 					sumRowProbs += prob;
 				}
 				if (!doublesEqual(sumRowProbs, 1.0)) {
