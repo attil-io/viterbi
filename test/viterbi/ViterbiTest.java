@@ -375,6 +375,7 @@ public class ViterbiTest {
 				.withTransitionProbability(PostaggaState.V, PostaggaState.D, 0.5)
 				.withTransitionProbability(PostaggaState.V, PostaggaState.P, 0.5)
 				.withTransitionProbability(PostaggaState.D, PostaggaState.N, 1.0)
+				.withTransitionProbability(PostaggaState.N, PostaggaState.N, 1.0)
 				.withEmissionProbability(PostaggaState.P, PostaggaObservation.Je, 0.3333333)
 				.withEmissionProbability(PostaggaState.P, PostaggaObservation.Te, 0.3333333)
 				.withEmissionProbability(PostaggaState.P, PostaggaObservation.Ma, 0.3333334)
