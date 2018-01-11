@@ -6,6 +6,7 @@ import static com.google.common.collect.Maps.immutableEnumMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.collect.HashBasedTable;
@@ -112,9 +113,9 @@ public class Viterbi {
 			if (model.transitionProbabilities.size() < 1) {
 				throw new IllegalArgumentException("at least one transition probability should be provided, " + model.transitionProbabilities.size() + " given");
 			}
-			for (S row : model.transitionProbabilities.rowKeySet()) {
+			for (S row : possibleStates) {
 				double sumRowProbs = 0.0;
-				for (double prob : model.transitionProbabilities.row(row).values()) {
+				for (double prob : rowOrDefault(model.transitionProbabilities, row, ImmutableMap.<S, Double>of()).values()) {
 					sumRowProbs += prob;
 				}
 				if (!doublesEqual(sumRowProbs, 1.0)) {
@@ -137,6 +138,14 @@ public class Viterbi {
 		
 		private static <S, T, V> V getOrDefault(Table<S, T, V> table, S key1, T key2, V defaultValue) {
 			V ret = table.get(key1, key2);
+			if (ret == null) {
+				ret = defaultValue;
+			}
+			return ret;
+		}
+
+		private static <S, T, V> Map<T, V> rowOrDefault(Table<S, T, V> table, S key, Map<T, V> defaultValue) {
+			Map<T, V> ret = table.row(key);
 			if (ret == null) {
 				ret = defaultValue;
 			}

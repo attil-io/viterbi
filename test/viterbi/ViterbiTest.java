@@ -257,6 +257,26 @@ public class ViterbiTest {
 		assertThat(states, is(expected));
 	}
 	
+	@Test
+	public void twoStatesOneObservationTransitionsOmittedForOneStateIsNotOk() {
+		ViterbiModel<TwoStatesOneObservationState, TwoStatesOneObservationObservation> model = ViterbiModel.<TwoStatesOneObservationState, TwoStatesOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<TwoStatesOneObservationState, Double>builder()
+						.put(TwoStatesOneObservationState.STATE0, 0.6)
+						.put(TwoStatesOneObservationState.STATE1, 0.4)
+						.build())
+				.withTransitionProbability(TwoStatesOneObservationState.STATE0, TwoStatesOneObservationState.STATE0, 0.7)
+				.withTransitionProbability(TwoStatesOneObservationState.STATE0, TwoStatesOneObservationState.STATE1, 0.3)
+				.withEmissionProbability(TwoStatesOneObservationState.STATE0, TwoStatesOneObservationObservation.OBSERVATION0, 1.0)
+				.withEmissionProbability(TwoStatesOneObservationState.STATE1, TwoStatesOneObservationObservation.OBSERVATION0, 1.0)
+				.build();
+		
+		ImmutableList<TwoStatesOneObservationObservation> observations = ImmutableList.of(TwoStatesOneObservationObservation.OBSERVATION0, TwoStatesOneObservationObservation.OBSERVATION0);
+		
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("sum of transition probabilities for each state should be one, was 0.0 for state STATE1");
+		new ViterbiMachine<>(model, observations);
+	}
+
 	enum TwoStatesTwoObservationsState { STATE0, STATE1 };
 	enum TwoStatesTwoObservationsObservation { OBSERVATION0, OBSERVATION1 };
 
