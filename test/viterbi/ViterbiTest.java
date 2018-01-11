@@ -142,7 +142,73 @@ public class ViterbiTest {
 		thrown.expectMessage("the sum of initial distributions should be 1.0, was 1.1");
 		new ViterbiMachine<>(model, observations);
 	}
+
+	@Test
+	public void oneStateOneObservationNoTransitionProbabilitiesIsNotOk() {
+		ViterbiModel<OneStateOneObservationState, OneStateOneObservationObservation> model = ViterbiModel.<OneStateOneObservationState, OneStateOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateOneObservationState, Double>builder()
+						.put(OneStateOneObservationState.STATE0, 1.0)
+						.build())
+				.withEmissionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationObservation.OBSERVATION0, 1.0)
+				.build();
+		
+		ImmutableList<OneStateOneObservationObservation> observations = ImmutableList.of(OneStateOneObservationObservation.OBSERVATION0);
+		
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("at least one transition probability should be provided, 0 given");
+		new ViterbiMachine<>(model, observations);
+	}
 	
+	@Test
+	public void oneStateOneObservationSumTransitionProbabilitiesNotOneIsNotOk() {
+		ViterbiModel<OneStateOneObservationState, OneStateOneObservationObservation> model = ViterbiModel.<OneStateOneObservationState, OneStateOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateOneObservationState, Double>builder()
+						.put(OneStateOneObservationState.STATE0, 1.0)
+						.build())
+				.withTransitionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationState.STATE0, 1.1)
+				.withEmissionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationObservation.OBSERVATION0, 1.0)
+				.build();
+		
+		ImmutableList<OneStateOneObservationObservation> observations = ImmutableList.of(OneStateOneObservationObservation.OBSERVATION0);
+		
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("sum of transition probabilities for each state should be one, was 1.1 for state STATE0");
+		new ViterbiMachine<>(model, observations);
+	}
+
+	@Test
+	public void oneStateOneObservationZeroEmissionProbabilitiesIsNotOk() {
+		ViterbiModel<OneStateOneObservationState, OneStateOneObservationObservation> model = ViterbiModel.<OneStateOneObservationState, OneStateOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateOneObservationState, Double>builder()
+						.put(OneStateOneObservationState.STATE0, 1.0)
+						.build())
+				.withTransitionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationState.STATE0, 1.0)
+				.build();
+		
+		ImmutableList<OneStateOneObservationObservation> observations = ImmutableList.of(OneStateOneObservationObservation.OBSERVATION0);
+		
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("at least one emission probability should be provided, 0 given");
+		new ViterbiMachine<>(model, observations);
+	}
+	
+	@Test
+	public void oneStateOneObservationSumEmissionProbabilitiesNotOneIsNotOk() {
+		ViterbiModel<OneStateOneObservationState, OneStateOneObservationObservation> model = ViterbiModel.<OneStateOneObservationState, OneStateOneObservationObservation>builder()
+				.withInitialDistributions(ImmutableMap.<OneStateOneObservationState, Double>builder()
+						.put(OneStateOneObservationState.STATE0, 1.0)
+						.build())
+				.withTransitionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationState.STATE0, 1.0)
+				.withEmissionProbability(OneStateOneObservationState.STATE0, OneStateOneObservationObservation.OBSERVATION0, 1.1)
+				.build();
+		
+		ImmutableList<OneStateOneObservationObservation> observations = ImmutableList.of(OneStateOneObservationObservation.OBSERVATION0);
+		
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("sum of emission probabilities for each state should be one, was 1.1 for state STATE0");
+		new ViterbiMachine<>(model, observations);
+	}
+
 	enum OneStateTwoObservationsState { STATE0 };
 	enum OneStateTwoObservationsObservation { OBSERVATION0, OBSERVATION1 };
 	
@@ -190,7 +256,7 @@ public class ViterbiTest {
 		final List<TwoStatesOneObservationState> expected = ImmutableList.of(TwoStatesOneObservationState.STATE0, TwoStatesOneObservationState.STATE0);
 		assertThat(states, is(expected));
 	}
-
+	
 	enum TwoStatesTwoObservationsState { STATE0, STATE1 };
 	enum TwoStatesTwoObservationsObservation { OBSERVATION0, OBSERVATION1 };
 

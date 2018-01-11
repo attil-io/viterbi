@@ -110,7 +110,7 @@ public class Viterbi {
 				throw new IllegalArgumentException("at least one observation should be provided, " + observations.size() + " given");
 			}
 			if (model.transitionProbabilities.size() < 1) {
-				throw new IllegalArgumentException("model.transitionProbabilities.size() = " + model.transitionProbabilities.size());
+				throw new IllegalArgumentException("at least one transition probability should be provided, " + model.transitionProbabilities.size() + " given");
 			}
 			for (S row : model.transitionProbabilities.rowKeySet()) {
 				double sumRowProbs = 0.0;
@@ -118,11 +118,11 @@ public class Viterbi {
 					sumRowProbs += prob;
 				}
 				if (!doublesEqual(sumRowProbs, 1.0)) {
-					throw new IllegalArgumentException("'" + row + "' sumRowProbs = " + sumRowProbs);
+					throw new IllegalArgumentException("sum of transition probabilities for each state should be one, was " + sumRowProbs + " for state " + row);
 				}
 			}
 			if (model.emissionProbabilities.size() < 1) {
-				throw new IllegalArgumentException("model.emissionProbabilities.size() = " + model.emissionProbabilities.size());
+				throw new IllegalArgumentException("at least one emission probability should be provided, 0 given " + model.emissionProbabilities.size() + " given");
 			}
 			for (S row : model.emissionProbabilities.rowKeySet()) {
 				double sumRowProbs = 0.0;
@@ -130,7 +130,7 @@ public class Viterbi {
 					sumRowProbs += prob;
 				}
 				if (!doublesEqual(sumRowProbs, 1.0)) {
-					throw new IllegalArgumentException("'" + row + "' sumRowProbs = " + sumRowProbs);
+					throw new IllegalArgumentException("sum of emission probabilities for each state should be one, was " + sumRowProbs + " for state " + row);
 				}
 			}
 		}
